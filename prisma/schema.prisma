@@ -5,9 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// using Supabase
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // Define the Question model representing questions
