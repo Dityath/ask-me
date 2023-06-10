@@ -9,13 +9,17 @@ const Home = () => {
 
   const [modal, setModal] = useState(false);
   const [modalData, setModalData] = useState("");
+  const [modalError, setModalError] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
   const handleMessageChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const { value } = e.currentTarget;
-    setNumber(value.length);
-    setMessage(value);
+    const truncatedValue = value.slice(0, 400);
+    setNumber(truncatedValue.length);
+    setMessage(truncatedValue);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,6 +28,7 @@ const Home = () => {
     console.log(message);
 
     try {
+      setLoading(true);
       const response = await fetch("/api/questions", {
         method: "POST",
         headers: {
@@ -36,8 +41,10 @@ const Home = () => {
       setModal(true);
       setModalData(data.msg);
       console.log(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error posting data", error);
+      setModalError(true);
     }
   };
 
@@ -68,6 +75,32 @@ const Home = () => {
             </div>
           </>
         ) : null}
+        {modalError ? (
+          <>
+            <div className="absolute z-10 bg-black/50 h-screen w-screen left-0 top-0 flex justify-center items-center">
+              <div className="modal-box">
+                <h2 className="font-bold text-lg capitalize">
+                  Too Much Request
+                </h2>
+                <p className="py-4">Try again later</p>
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      setMessage("");
+                      setNumber(0);
+                      setModalError(false);
+                      setLoading(false);
+                    }}
+                  >
+                    Ok
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
         <h1 className="text-center text-2xl">
           Send a anonymous message to Ditya
         </h1>
@@ -79,13 +112,26 @@ const Home = () => {
               onChange={handleMessageChange}
               value={message}
             ></textarea>
-            <p className="absolute right-5 bottom-5">{number}</p>
+            <p
+              className={`absolute right-5 bottom-5 ${
+                number >= 390 ? "text-error" : ""
+              }`}
+            >
+              {number}
+              {number >= 400 ? " (Maximum)" : null}
+            </p>
           </div>
           <button
             type="submit"
-            className={`btn w-full mt-5 ${message ? "" : "btn-disabled"}`}
+            className={`btn w-full mt-5 ${message ? "" : "btn-disabled"} ${
+              loading ? "btn-disable" : ""
+            }`}
           >
-            Submit
+            {loading ? (
+              <span className="loading loading-dots loading-sm" />
+            ) : (
+              "Submit"
+            )}
           </button>
         </form>
       </Layout>

@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/cookie-parser": "^1.4.3",
     "@types/jsonwebtoken": "^9.0.2",
     "bcrypt": "^5.1.0",
     "daisyui": "^3.0.20",

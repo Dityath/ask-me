@@ -18,9 +18,13 @@ const AdminLayout = ({ children, className }: AdminLayoutProps) => {
   const [modal, setModal] = useState(false);
   const [errorMsg, setErrorMsg] = useState<ApiResponse<any>>();
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        setLoading(true);
+
         const res = await fetch("/api/auth/check", {
           method: "GET",
           headers: {
@@ -36,6 +40,8 @@ const AdminLayout = ({ children, className }: AdminLayoutProps) => {
           setErrorMsg(data);
           throw new Error("Login Failed");
         }
+
+        setLoading(false);
       } catch (error) {
         setModal(true);
         console.error(error);
@@ -49,38 +55,46 @@ const AdminLayout = ({ children, className }: AdminLayoutProps) => {
     if (!auth) Router.replace("/admin/auth/login");
   });
 
-  return (
-    <>
-      <AdminNavbar
-        logout={() => {
-          setAuthLocal("");
-          setAuth(false);
-        }}
-      />
-      {modal ? (
-        <>
-          <div className="absolute z-10 bg-black/50 h-screen w-screen left-0 top-0 flex justify-center items-center">
-            <div className="modal-box">
-              <h2 className="font-bold text-lg capitalize">Error</h2>
-              <p className="py-4">{errorMsg?.error}</p>
-              <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => setAuth(false)}
-                >
-                  Back To Login Page
-                </button>
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <span className="loading loading-dots loading-lg" />
+      </div>
+    );
+  } else {
+    return (
+      <>
+        <AdminNavbar
+          logout={() => {
+            setAuthLocal("");
+            setAuth(false);
+          }}
+        />
+        {modal ? (
+          <>
+            <div className="absolute z-10 bg-black/50 h-screen w-screen left-0 top-0 flex justify-center items-center">
+              <div className="modal-box">
+                <h2 className="font-bold text-lg capitalize">Error</h2>
+                <p className="py-4">{errorMsg?.error}</p>
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => setAuth(false)}
+                  >
+                    Back To Login Page
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <></>
-      )}
-      <main className={`px-5 pt-5 ${className}`}>{children}</main>
-    </>
-  );
+          </>
+        ) : (
+          <></>
+        )}
+        <main className={`px-5 pt-5 ${className}`}>{children}</main>
+      </>
+    );
+  }
 };
 
 export default AdminLayout;

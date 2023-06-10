@@ -54,13 +54,43 @@ export default async function question(
           data: { answered: !question.answered, updatedAt: new Date() },
         });
 
-        res
-          .status(200)
-          .json({
-            status: 200,
-            msg: "Question Updated Successfully",
-            data: updatedQuestion,
-          });
+        res.status(200).json({
+          status: 200,
+          msg: "Question Updated Successfully",
+          data: updatedQuestion,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: 500, error: "Internal Server Error" });
+      }
+    });
+  } else if (req.method === "DELETE") {
+    authMiddleware(req, res, async () => {
+      try {
+        const { pid } = req.query;
+
+        const question = await prisma.question.findUnique({
+          where: {
+            id: parseInt(pid as string),
+          },
+        });
+
+        if (!question) {
+          return res
+            .status(404)
+            .json({ status: 404, error: "Question Not Found" });
+        }
+
+        await prisma.question.delete({
+          where: {
+            id: parseInt(pid as string),
+          },
+        });
+
+        res.status(200).json({
+          status: 200,
+          msg: "Question Deleted Successfully",
+        });
       } catch (error) {
         console.error(error);
         res.status(500).json({ status: 500, error: "Internal Server Error" });

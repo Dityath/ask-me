@@ -20,6 +20,13 @@ export default async function questions(
         return res.status(400).json({ status: 400, error: "Invalid message" });
       }
 
+      if (message.length > 400) {
+        return res.status(400).json({
+          status: 400,
+          error: "Message size exceeds 500 characters",
+        });
+      }
+
       const createdMessage = await prisma.question.create({
         data: {
           content: message,
@@ -78,6 +85,23 @@ export default async function questions(
       } catch (error) {
         console.log(error);
         res.status(500).json({ status: 500, error: "Internal Server Error" });
+      }
+    });
+  } else if (req.method === "DELETE") {
+    authMiddleware(req, res, async () => {
+      try {
+        await prisma.question.deleteMany();
+
+        res.status(200).json({
+          status: 200,
+          msg: "All questions deleted successfully.",
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          status: 500,
+          error: "Internal Server Error",
+        });
       }
     });
   } else {

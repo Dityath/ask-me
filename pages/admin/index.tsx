@@ -23,9 +23,13 @@ const Admin = () => {
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
+
         const res = await fetch(
           `/api/questions?page=${page}&perpage=${perPage}${
             social ? `&social=${social}` : ""
@@ -41,6 +45,8 @@ const Admin = () => {
         const resData = await res.json();
         console.log(resData);
         setData(resData);
+
+        setLoading(false);
       } catch (error) {
         console.log(error);
       }
@@ -81,43 +87,63 @@ const Admin = () => {
           </select>
         </div>
       </div>
-      <div className="flex flex-col gap-10 my-5">
-        {data?.data?.map((items) => {
-          const converted = items.content.replace(/\n/g, "<br />");
+      {loading ? (
+        <div className="w-full flex items-center justify-center h-44">
+          <span className="m-auto loading loading-dots loading-lg" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-10 my-5">
+          {data?.data?.length !== 0 ? (
+            <>
+              {data?.data?.map((items) => {
+                const converted = items.content.replace(/\n/g, "<br />");
 
-          return (
-            <div key={items.id} className="card bg-base-100 shadow-xl w-full">
-              <div className="card-body">
-                <p
-                  className="mt-5"
-                  dangerouslySetInnerHTML={{ __html: converted }}
-                />
-                <div className="divider" />
-                <p className="">
-                  {
-                    dayjs(items.createdAt).format(
-                      "HH:mm DD MMM, YYYY"
-                    ) as unknown as string
-                  }{" "}
-                  {items.social ? `from ${items.social}` : null}
-                </p>
-                <div className="flex items-center gap-2 mb-5">
-                  {items.answered ? (
-                    <div className="badge badge-outline badge-accent">
-                      Answered
+                return (
+                  <div
+                    key={items.id}
+                    className="card bg-base-100 shadow-xl w-full"
+                  >
+                    <div className="card-body">
+                      <p
+                        className="mt-5"
+                        dangerouslySetInnerHTML={{ __html: converted }}
+                      />
+                      <div className="divider" />
+                      <p className="">
+                        {
+                          dayjs(items.createdAt).format(
+                            "HH:mm DD MMM, YYYY"
+                          ) as unknown as string
+                        }{" "}
+                        {items.social ? `from ${items.social}` : null}
+                      </p>
+                      <div className="flex items-center gap-2 mb-5">
+                        {items.answered ? (
+                          <div className="badge badge-outline badge-accent">
+                            Answered
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="card-actions">
+                        <Link
+                          href={`/admin/${items.id}`}
+                          className="btn btn-primary"
+                        >
+                          See Details
+                        </Link>
+                      </div>
                     </div>
-                  ) : null}
-                </div>
-                <div className="card-actions">
-                  <Link href={`/admin/${items.id}`} className="btn btn-primary">
-                    See Details
-                  </Link>
-                </div>
-              </div>
+                  </div>
+                );
+              })}
+            </>
+          ) : (
+            <div className="flex justify-center items-center my-32">
+              No Data
             </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      )}
       <div className="flex items-center justify-center w-full my-5">
         <div className="join">
           <button
