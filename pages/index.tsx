@@ -101,9 +101,7 @@ const Home = () => {
             </div>
           </>
         ) : null}
-        <h1 className="text-center text-2xl">
-          Send a anonymous message to Ditya
-        </h1>
+        <h1 className="text-center text-2xl">Send a anonymous message to me</h1>
         <form onSubmit={handleSubmit}>
           <div className="relative">
             <textarea
