@@ -207,7 +207,7 @@ const MessageDetail = () => {
             </p>
           </div>
           <p className="text-xs absolute bottom-4 right-4 text-base-content/20">
-            ask-me.dityath.dev
+            ask.dityath.dev
           </p>
         </div>
       )}
